@@ -13,7 +13,7 @@ if(condition = shouldWePlay.toLowerCase() === "yes"){
     console.log("we are heading left");
 
     const cross = prompt('do you want to cross the bridge?');
-    if(cross === "yes"){
+    if(cross === "yes" || cross === "y" || cross === "yes please"){
       console.log("you crossed the bridge but it was broken")
 
     }else{

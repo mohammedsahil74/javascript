@@ -1,5 +1,6 @@
 const prompt = require('prompt-sync') ();
 
+
 let number1;
 let number2;
 

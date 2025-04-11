@@ -30,4 +30,4 @@ if(condition = shouldWePlay.toLowerCase() === "yes"){
 }
 else{
   console.log('invalid input')
-};
+};// test commit

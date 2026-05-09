@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CYBORG</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --clr-bg: #07080f;
+        --clr-surface: rgba(255, 255, 255, 0.04);
+        --clr-border: rgba(255, 255, 255, 0.08);
+        --clr-text: rgba(255, 255, 255, 0.88);
+        --clr-text-muted: rgba(255, 255, 255, 0.35);
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background: var(--clr-bg);
+        color: var(--clr-text);
+        font-family: "DM Mono", monospace;
+        overflow: hidden;
+        user-select: none;
+      }
+
+      /* Deep space background pulse */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(
+          ellipse 70% 60% at 50% 50%,
+          rgba(90, 60, 160, 0.07) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+        animation: bg-breathe 8s ease-in-out infinite;
+      }
+
+      @keyframes bg-breathe {
+        0%,
+        100% {
+          opacity: 0.6;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      /* ═══ PARTICLES ═══ */
+      .particles {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .particle {
+        position: absolute;
+        width: 1.5px;
+        height: 1.5px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        animation: twinkle var(--dur) ease-in-out infinite var(--delay);
+      }
+      @keyframes twinkle {
+        0%,
+        100% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      /* ═══ NAV ═══ */
+      nav {
+        position: fixed;
+        top: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        padding: 13px 28px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 0.5px solid rgba(255, 255, 255, 0.1);
+        border-radius: 100px;
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        z-index: 100;
+        white-space: nowrap;
+      }
+
+      .nav-brand {
+        font-family: "Cormorant Garant", serif;
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        color: var(--clr-text);
+      }
+
+      .nav-divider {
+        width: 0.5px;
+        height: 14px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 22px;
+        list-style: none;
+      }
+      .nav-links a {
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        color: var(--clr-text-muted);
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: color 0.25s;
+      }
+      .nav-links a:hover {
+        color: var(--clr-text);
+      }
+
+      /* ═══ MAIN STAGE ═══ */
+      main {
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 52px;
+      }
+
+      /* ═══ STATUS TEXT ═══ */
+      .status {
+        font-family: "Cormorant Garant", serif;
+        font-style: italic;
+        font-size: 17px;
+        letter-spacing: 0.06em;
+        color: var(--clr-text-muted);
+        height: 26px;
+        transition:
+          color 0.5s ease,
+          opacity 0.5s ease;
+      }
+
+      .status.listening {
+        color: rgba(56, 189, 248, 0.7);
+      }
+      .status.thinking {
+        color: rgba(251, 191, 36, 0.7);
+      }
+      .status.speaking {
+        color: rgba(167, 139, 250, 0.7);
+      }
+
+      /* ═══ ORB SYSTEM ═══ */
+      .orb-system {
+        position: relative;
+        width: 260px;
+        height: 260px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Ripple rings */
+      .ring {
+        position: absolute;
+        border-radius: 50%;
+        border: 1px solid transparent;
+        opacity: 0;
+        pointer-events: none;
+        transition: border-color 0.5s;
+      }
+      .ring-1 {
+        width: 300px;
+        height: 300px;
+      }
+      .ring-2 {
+        width: 370px;
+        height: 370px;
+      }
+      .ring-3 {
+        width: 440px;
+        height: 440px;
+      }
+
+      /* The orb */
+      .orb {
+        width: 230px;
+        height: 230px;
+        border-radius: 50%;
+        position: relative;
+        transition: box-shadow 0.7s ease;
+        will-change: transform;
+      }
+
+      /* Inner core shimmer */
+      .orb::after {
+        content: "";
+        position: absolute;
+        top: 18%;
+        left: 22%;
+        width: 28%;
+        height: 20%;
+        background: rgba(255, 255, 255, 0.55);
+        border-radius: 50%;
+        filter: blur(8px);
+        transition: opacity 0.5s;
+      }
+
+      /* ─── IDLE ─── */
+      .orb-system[data-state="idle"] .orb {
+        background: radial-gradient(
+          circle at 36% 32%,
+          #ffffff 0%,
+          #dcdcf0 25%,
+          #a0a0c8 60%,
+          #58587a 100%
+        );
+        box-shadow:
+          0 0 50px 12px rgba(200, 200, 255, 0.18),
+          0 0 100px 30px rgba(180, 180, 240, 0.07);
+        animation: breathe 4.5s ease-in-out infinite;
+      }
+      .orb-system[data-state="idle"] .ring {
+        border-color: rgba(200, 200, 255, 0.1);
+      }
+
+      /* ─── LISTENING ─── */
+      .orb-system[data-state="listening"] .orb {
+        background: radial-gradient(
+          circle at 36% 32%,
+          #b8eeff 0%,
+          #38bdf8 30%,
+          #0369a1 65%,
+          #082f49 100%
+        );
+        box-shadow:
+          0 0 50px 14px rgba(56, 189, 248, 0.32),
+          0 0 110px 35px rgba(56, 189, 248, 0.1);
+        animation: breathe-fast 1.8s ease-in-out infinite;
+      }
+      .orb-system[data-state="listening"] .ring {
+        border-color: rgba(56, 189, 248, 0.45);
+      }
+      .orb-system[data-state="listening"] .ring-1 {
+        animation: ripple 2s ease-out infinite;
+      }
+      .orb-system[data-state="listening"] .ring-2 {
+        animation: ripple 2s ease-out infinite 0.55s;
+      }
+      .orb-system[data-state="listening"] .ring-3 {
+        animation: ripple 2s ease-out infinite 1.1s;
+      }
+
+      /* ─── THINKING ─── */
+      .orb-system[data-state="thinking"] .orb {
+        background: radial-gradient(
+          circle at 36% 32%,
+          #fef3c7 0%,
+          #fbbf24 30%,
+          #b45309 65%,
+          #3b1c01 100%
+        );
+        box-shadow:
+          0 0 50px 14px rgba(251, 191, 36, 0.28),
+          0 0 110px 35px rgba(251, 191, 36, 0.08);
+        animation: think-shimmer 2.5s ease-in-out infinite;
+      }
+      .orb-system[data-state="thinking"] .ring {
+        border-color: rgba(251, 191, 36, 0.3);
+        border-style: dashed;
+      }
+      .orb-system[data-state="thinking"] .ring-1 {
+        animation: rotate-ring 5s linear infinite;
+        opacity: 0.55;
+      }
+      .orb-system[data-state="thinking"] .ring-2 {
+        animation: rotate-ring 8s linear infinite reverse;
+        opacity: 0.28;
+      }
+      .orb-system[data-state="thinking"] .ring-3 {
+        animation: rotate-ring 12s linear infinite;
+        opacity: 0.15;
+      }
+
+      /* ─── SPEAKING ─── */
+      .orb-system[data-state="speaking"] .orb {
+        background: radial-gradient(
+          circle at 36% 32%,
+          #f0e6ff 0%,
+          #a855f7 28%,
+          #7e22ce 62%,
+          #2e1065 100%
+        );
+        box-shadow:
+          0 0 50px 14px rgba(168, 85, 247, 0.32),
+          0 0 110px 35px rgba(168, 85, 247, 0.1);
+        animation: speak-pulse 0.75s ease-in-out infinite alternate;
+      }
+      .orb-system[data-state="speaking"] .ring {
+        border-color: rgba(168, 85, 247, 0.45);
+      }
+      .orb-system[data-state="speaking"] .ring-1 {
+        animation: ripple 1.4s ease-out infinite;
+      }
+      .orb-system[data-state="speaking"] .ring-2 {
+        animation: ripple 1.4s ease-out infinite 0.35s;
+      }
+      .orb-system[data-state="speaking"] .ring-3 {
+        animation: ripple 1.4s ease-out infinite 0.7s;
+      }
+
+      /* ═══ KEYFRAMES ═══ */
+      @keyframes breathe {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.04);
+        }
+      }
+      @keyframes breathe-fast {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.07);
+        }
+      }
+      @keyframes speak-pulse {
+        0% {
+          transform: scale(0.95);
+        }
+        100% {
+          transform: scale(1.06);
+        }
+      }
+      @keyframes think-shimmer {
+        0%,
+        100% {
+          filter: brightness(1);
+        }
+        50% {
+          filter: brightness(1.18);
+        }
+      }
+      @keyframes ripple {
+        0% {
+          transform: scale(0.75);
+          opacity: 0.9;
+        }
+        100% {
+          transform: scale(1.35);
+          opacity: 0;
+        }
+      }
+      @keyframes rotate-ring {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ═══ MIC BUTTON ═══ */
+      .mic-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .mic-btn {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        border: 0.5px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        outline: none;
+        position: relative;
+        z-index: 2;
+      }
+
+      .mic-btn:hover {
+        border-color: rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.08);
+        transform: scale(1.06);
+      }
+
+      .mic-btn.active {
+        border-color: rgba(56, 189, 248, 0.45);
+        background: rgba(56, 189, 248, 0.07);
+        box-shadow: 0 0 24px rgba(56, 189, 248, 0.18);
+      }
+
+      .mic-btn svg {
+        width: 22px;
+        height: 22px;
+        stroke: rgba(255, 255, 255, 0.38);
+        fill: none;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        transition: stroke 0.3s;
+      }
+
+      .mic-btn.active svg {
+        stroke: #38bdf8;
+      }
+
+      /* Mic pulse ring when active */
+      .mic-btn.active::before {
+        content: "";
+        position: absolute;
+        inset: -8px;
+        border-radius: 50%;
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        animation: mic-ripple 1.6s ease-out infinite;
+      }
+
+      @keyframes mic-ripple {
+        0% {
+          transform: scale(1);
+          opacity: 0.8;
+        }
+        100% {
+          transform: scale(1.5);
+          opacity: 0;
+        }
+      }
+
+      /* ═══ KEYBOARD HINT ═══ */
+      .hint {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.16);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="particles" id="particles"></div>
+
+    <nav>
+      <span class="nav-brand">CYBORG</span>
+      <div class="nav-divider"></div>
+      <ul class="nav-links">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Memory</a></li>
+        <li><a href="#">Settings</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <p class="status" id="status">ready.</p>
+
+      <div class="orb-system" data-state="idle" id="orbSystem">
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
+        <div class="ring ring-3"></div>
+        <div class="orb" id="orb"></div>
+      </div>
+
+      <div class="mic-wrap">
+        <button class="mic-btn" id="micBtn" aria-label="Toggle microphone">
+          <svg viewBox="0 0 24 24">
+            <rect x="9" y="2" width="6" height="12" rx="3" />
+            <path d="M5 10a7 7 0 0014 0" />
+            <line x1="12" y1="19" x2="12" y2="23" />
+            <line x1="9" y1="23" x2="15" y2="23" />
+          </svg>
+        </button>
+      </div>
+    </main>
+
+    <p class="hint">press mic to speak · space to toggle</p>
+
+    <script src="script.js"></script>
+
+    <script>
+      /* ── Particles ── */
+      const particleContainer = document.getElementById("particles");
+      for (let i = 0; i < 90; i++) {
+        const p = document.createElement("div");
+        p.className = "particle";
+        p.style.left = Math.random() * 100 + "%";
+        p.style.top = Math.random() * 100 + "%";
+        p.style.setProperty("--dur", 2.5 + Math.random() * 6 + "s");
+        p.style.setProperty("--delay", Math.random() * 8 + "s");
+        particleContainer.appendChild(p);
+      }
+
+      /* ── State machine ── */
+      const STATUS_TEXT = {
+        idle: "ready.",
+        listening: "listening...",
+        thinking: "thinking...",
+        speaking: "speaking...",
+      };
+
+      let currentState = "idle";
+      let stateTimer = null;
+
+      const orbSystem = document.getElementById("orbSystem");
+      const statusEl = document.getElementById("status");
+      const micBtn = document.getElementById("micBtn");
+
+      function setState(state) {
+        currentState = state;
+        orbSystem.dataset.state = state;
+
+        statusEl.className = "status " + (state === "idle" ? "" : state);
+        statusEl.textContent = STATUS_TEXT[state];
+        micBtn.classList.toggle("active", state === "listening");
+
+        if (stateTimer) clearTimeout(stateTimer);
+
+        /* Demo auto-advance — replace these with real Ollama calls later */
+        if (state === "listening") {
+          stateTimer = setTimeout(() => setState("thinking"), 3500);
+        } else if (state === "thinking") {
+          stateTimer = setTimeout(() => setState("speaking"), 2200);
+        } else if (state === "speaking") {
+          stateTimer = setTimeout(() => setState("idle"), 3800);
+        }
+      }
+
+      /* Mic button click */
+      micBtn.addEventListener("click", () => {
+        if (currentState === "idle") {
+          setState("listening");
+        } else {
+          if (stateTimer) clearTimeout(stateTimer);
+          setState("idle");
+        }
+      });
+
+      /* Space bar shortcut */
+      document.addEventListener("keydown", (e) => {
+        if (e.code === "Space" && e.target === document.body) {
+          e.preventDefault();
+          micBtn.click();
+        }
+      });
+    </script>
+  </body>
+</html>
